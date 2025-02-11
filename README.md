@@ -2,7 +2,7 @@
 
 ## Example Usage (eg. to put all HTTP templates into one archived file)
 
-1. Go to the  directory contianing the template folders:
+1. Go to the  directory containing the template folders:
 
 > cd http/
 
