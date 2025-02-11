@@ -1,0 +1,19 @@
+{{$input := .}}
+{{$augmentData := .AugmentData.V1}}
+{{$server := index $input.Args 0}}
+{{$location := index $input.Args 1}}
+
+{{$oidcEnabled := $augmentData.main.templateInput.oidc.enabled}}
+
+{{if $location}}
+    {{if eq $oidcEnabled true}}
+    # Apply OIDC to base location {{$location.identifier}}
+    auth_jwt "" token=$session_jwt;
+    error_page 401 = @do_oidc_flow;
+    auth_jwt_key_request /_jwks_uri;
+
+    # Successfully authenticated users are proxied to the backend,
+    # with 'sub' claim passed as HTTP header
+    proxy_set_header username $jwt_claim_sub;
+    {{end}}
+{{end}}

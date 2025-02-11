@@ -1,0 +1,32 @@
+{{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+#############
+# Active Health Checks #
+#############
+{{ range $healthcheck := $augmentArgs.matches }}
+    match {{ $healthcheck.name }} {
+    {{ if not ( empty $healthcheck.status ) }}
+        status {{ $healthcheck.status }}; 
+    {{end}}
+    {{ if not ( empty $healthcheck.header ) }}
+        header {{ $healthcheck.header }};
+    {{end}}
+    {{ if not ( empty $healthcheck.body ) }}
+        body {{ $healthcheck.body }}; 
+    {{end}}
+    }
+
+upstream sample_upstream {
+    zone sample_zone 64k;
+    server 127.0.0.1:80;
+}
+
+server {
+    listen 9050;
+
+    location / {
+        health_check match={{ $healthcheck.name }};
+        proxy_pass http://sample_upstream;
+        }
+    }
+{{ end }}

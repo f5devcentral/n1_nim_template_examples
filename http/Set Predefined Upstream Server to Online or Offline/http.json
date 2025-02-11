@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Server Status",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+              "downserver1": {
+                "title": "Mark Server 1 as Down in Upstream",
+                "type": "boolean",
+                "description": "Enable to temporarily remove the server while preserving current hashing of client IP addresses.",
+                "examples": [
+                    true
+                ]
+              },
+              "downserver2": {
+                "title": "Mark Server 2 as Down in Upstream",
+                "type": "boolean",
+                "description": "Enable to temporarily remove the server while preserving current hashing of client IP addresses.",
+                "examples": [
+                    false
+                ]
+              }         
+            }
+      
+    }
+  },
+  "required": []
+}

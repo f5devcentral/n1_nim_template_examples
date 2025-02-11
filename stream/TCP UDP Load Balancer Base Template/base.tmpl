@@ -1,0 +1,87 @@
+{{/*
+    This is an example base template demonstrating the rendering of Stream blocks
+    for a Preview and Generate action. 
+*/}}
+{{ $input := .}}
+{{ $baseData := .Data.V1}}
+user nginx;
+worker_processes auto;
+worker_shutdown_timeout 60s;
+error_log /var/log/nginx/error.log notice;
+pid /var/run/nginx.pid;
+include /etc/nginx/main.d/*.conf;
+
+
+{{/* 
+ Generates the include directive(s) for augment templates having 'main.tmpl'. Requires first param of "main".
+*/}}
+{{ $input.ExecTemplateAugments "main" }}
+events {
+    worker_connections  1024;
+}
+
+http {
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+	log_format controller_recommended_log_format '$remote_addr - "$remote_user" [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$host" sn="$server_name" rt="$request_time" ua="$upstream_addr" us="$upstream_status" ut="$upstream_response_time" ul="$upstream_response_length" cs="$upstream_cache_status"';
+	access_log /var/log/nginx/access.log controller_recommended_log_format;
+	error_log /var/log/nginx/error.log;
+	sendfile on;
+	keepalive_timeout 65;
+	server_tokens off;
+	include /etc/nginx/http.d/*.conf;
+}
+
+{{if and $baseData.stream $baseData.stream.identifier }}
+    stream {
+        include /etc/nginx/stream.d/*.conf;
+
+        {{/* 
+          Generates the include directive(s) for augment templates having 'stream.tmpl'. Requires first param of "stream".
+        */}}
+        {{ $input.ExecTemplateAugments "stream" }}
+
+        {{ range $upstreamIndex, $upstream := $baseData.stream.upstreams}}
+              upstream {{$upstream.templateInput.name}} {
+
+                {{$upstreamTemplateInput := $upstream.templateInput}}
+                {{range $serverIndex, $upstreamServer := $upstreamTemplateInput.servers}}
+                    {{$port := ""}}
+                    {{if $upstreamServer.port}}
+                        {{$port = (printf ":%0.f" $upstreamServer.port)}}
+                    {{end}}
+                    server {{$upstreamServer.address}}{{$port}};
+                {{end}}
+
+                {{/* 
+                   Generates the include directive(s) for augment templates having 'stream-upstream.tmpl'.
+                   First param is always "stream-upstream" and must also include the $upstream object.
+                */}}
+                {{ $input.ExecTemplateAugments "stream-upstream" $upstream}}
+              }
+        {{end}}
+
+        {{range $serverIndex, $server := $baseData.stream.servers}}
+            server {
+                {{if $server.templateInput}}
+                    {{if and $server.templateInput.udp (eq $server.templateInput.udp true) }}
+                        listen {{$server.templateInput.port}} udp;
+                    {{else}}
+                        listen {{$server.templateInput.port}};
+                    {{end}}
+                {{end}}
+                {{$proxyPassPort := ""}}
+                {{if $server.templateInput.proxyPass.port}}
+                    {{$proxyPassPort = (printf ":%0.f" $server.templateInput.proxyPass.port)}}
+                {{end}}
+                proxy_pass {{$server.templateInput.proxyPass.address}}{{$proxyPassPort}};
+
+                {{/* 
+                   Generates the include directive(s) for augment templates having 'stream-server.tmpl'.
+                   First param is always "stream-server" and must also include the $server object.
+                */}}
+                {{$input.ExecTemplateAugments "stream-server" $server}}
+            }
+        {{end}}
+    }
+{{end}}

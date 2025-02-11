@@ -1,0 +1,15 @@
+{{ $augmentArgs := .AugmentData.V1.stream.templateInput }}
+
+upstream {{ $augmentArgs.name }} {
+    {{ range $server := $augmentArgs.servers }}
+        {{ $serverName := $server.host }}   
+        
+          {{ if not (empty $server.port) }}       
+            {{ $serverName = printf "%s:%v" $server.address $server.port }}
+
+          server {{ $serverName }};
+     {{ end }}
+
+{{ end }}
+
+}

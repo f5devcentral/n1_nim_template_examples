@@ -1,0 +1,68 @@
+ {{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+  {{
+     $matchTypes := dict
+       "Prefix" ""
+       "Strong Prefix" "^~"
+       "Exact" "="
+       "Case-Sensitive Regular Expression" "~"
+       "Case-Insensitive Regular Expression" "~*"
+   }}
+
+
+{{ range $server := $augmentArgs.servers }}
+
+ server {
+   listen {{ $server.listen.port }}
+     {{ ternary "" "default_server" (empty $server.listen.isDefault) }}
+     {{ ternary "" "ssl" (empty $server.ssl.isEnabled) }};
+
+   {{ if not (empty $server.ssl) }}
+     ssl_certificate {{ $server.ssl.sslCertificate }};
+     ssl_certificate_key {{ $server.ssl.sslCertificateKey }};
+   {{ end }}
+
+   {{ if not (empty $server.name) }}
+     server_name {{ $server.name | join " " }};
+   {{ end }}
+
+
+{{ range $serverSnippets := $server.serverSnippets }}
+        {{ $serverSnippets.snippetValue }} 
+        {{ "" }} 
+ {{ end }}
+
+{{ range $locations := $server.locations }}
+
+     {{ $matchType := "" }}
+     {{ if not (empty $locations.matchType) }}
+       {{ $matchType = index $matchTypes $locations.matchType }}
+     {{ end }}
+
+     location {{ $matchType }} {{ $locations.nameExpression }} {
+       {{ range $proxyHeaders := $locations.proxyHeaders }}
+         proxy_set_header "{{ $proxyHeaders.headerName }}" "{{ $proxyHeaders.headerValue }}";
+       {{ end }}
+
+      {{ range $locationSnippets := $locations.locationSnippets }}
+              {{ $locationSnippets.snippetValue }} 
+      {{ end }}
+      {{ "" }} 
+       proxy_pass http://{{ $locations.upstreamName }};
+ }
+{{ end }}
+     proxy_intercept_errors on;
+   }
+
+ {{/* Create a TLS redirect server if specified */}}
+ {{ if not (empty $server.ssl.redirectFromPort) }}
+   server {
+       listen {{ $server.ssl.redirectFromPort }};
+       {{ if not (empty $server.name) }}
+         server_name {{ $server.name | join " " }};
+       {{ end }}
+       return 301 https://$host$request_uri;
+   }
+ {{ end }}
+
+{{ end }}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stream Upstream Inputs",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "name": {
+          "title": "Stream Upstream name",
+          "type": "string",
+          "description": "Specifies the name for the stream upstream.",
+          "examples": [
+            "upstream-1"
+          ]
+        },
+        "servers": {
+          "type": "array",
+          "title": "Upstream servers",
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "title": "Upstream server address",
+                "type": "string",
+                "description": "Specifies the address for the upstream server.",
+                "examples": [
+                  "backend1.example.com",
+                  "192.0.0.1"
+                ]
+              },
+              "port": {
+                "type": "integer",
+                "title": "Upstream server port",
+                "description": "Specifies the port for the upstream server.",
+                "minimum": 1,
+                "maximum": 65535,
+                "examples": [
+                  80
+                ]
+              }
+            },
+            "required": [
+              "address"
+            ]
+          }
+        }
+      },
+      "required": ["name","servers"]
+    }
+  },
+  "required": []
+}

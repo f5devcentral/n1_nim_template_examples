@@ -1,0 +1,32 @@
+{{ $augmentArgs := .AugmentData.V1.httpServer.templateInput }}
+
+     {{
+        $matchTypes := dict
+          "Prefix" ""
+          "Strong Prefix" "^~"
+          "Exact" "="
+          "Case-Sensitive Regular Expression" "~"
+          "Case-Insensitive Regular Expression" "~*"
+      }}
+
+
+        {{ $matchType := "" }}
+        {{ if not (empty $augmentArgs.matchType) }}
+          {{ $matchType = index $matchTypes $augmentArgs.matchType }}
+        {{ end }}
+
+
+{{ range $location := $augmentArgs.locations }}
+        location {{ $matchType }} {{ $location.nameExpression }} {
+          {{ range $proxyHeaders := $location.proxyHeaders }}
+            proxy_set_header "{{ $proxyHeaders.headerName }}" "{{ $proxyHeaders.headerValue }}";
+          {{ end }}
+
+          {{ range $locationSnippets := $location.locationSnippets }}
+            {{ $locationSnippets.snippetValue }} 
+          {{ end }}
+          {{ "" }} 
+
+          proxy_pass http://{{ $location.upstreamName }};
+    }
+{{ end }}

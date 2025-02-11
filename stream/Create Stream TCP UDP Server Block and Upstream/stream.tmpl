@@ -1,0 +1,26 @@
+{{ $augmentArgs := .AugmentData.V1.stream.templateInput }}
+
+                  upstream {{ $augmentArgs.upstreams.name }} {
+
+                {{range $upstreamServer := $augmentArgs.upstreams.servers}}
+                    {{$port := ""}}
+                    {{if $upstreamServer.port}}
+                        {{$port = (printf ":%0.f" $upstreamServer.port)}}
+                    {{end}}
+                    server {{$upstreamServer.address}}{{$port}};
+                {{end}}
+}
+
+            server {
+                    {{if and $augmentArgs.udp (eq $augmentArgs.udp true) }}
+                        listen {{$augmentArgs.port}} udp;
+                    {{else}}
+                        listen {{$augmentArgs.port}};
+                    {{end}}
+
+                {{$proxyPassPort := ""}}
+                {{if $augmentArgs.proxyPass.port}}
+                    {{$proxyPassPort = (printf ":%0.f" $augmentArgs.proxyPass.port)}}
+                {{end}}
+                proxy_pass {{$augmentArgs.proxyPass.address}}{{$proxyPassPort}};
+            }

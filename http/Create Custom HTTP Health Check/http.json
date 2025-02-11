@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HTTP Server Inputs",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "matches": {
+          "type": "array",
+          "title": "Matches",
+          "description": "Specifies the Matches directive for active healthcheck name.",
+          "examples": [
+            "Match my_check { header=200-399 }"
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "title": "Name",
+                "type": "string",
+                "description": "Specifies the name of the match.",
+                "examples": [ 
+                  "someName"
+                ]
+              },
+              "status": {
+                "title": "status",
+                "type": "string",
+                "description": "Specifies the status of the match.",
+                "examples": [
+                  "200-399"
+                ]
+              },
+              "header": {
+                "title": "Header",
+                "type": "string",
+                "description": "Specifies the header of the match.",
+                "examples": [
+                  "Content-Type = text/html"
+                ]
+              },
+              "body": {
+                "title": "Body",
+                "type": "string",
+                "description": "Specifies the body of the match.",
+                "examples": [
+                  "~ \"Welcome to nginx!\""
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,8 @@
+{{$input := .}}
+{{$augmentData := .AugmentData.V1}}
+
+{{$oidcEnabled := $augmentData.main.templateInput.oidc.enabled}}
+
+{{if eq $oidcEnabled true}}
+    load_module modules/ngx_http_js_module.so;
+{{end}}

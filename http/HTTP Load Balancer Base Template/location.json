@@ -1,0 +1,87 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Location Inputs",
+    "type": "object",
+    "properties": {
+      "templateInput": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "matchType": {
+            "title": "Location Match Strategy",
+            "type": "string",
+            "description": "The strategy NGINX will use to determine whether the URI matches the request path.",
+            "__docs": [
+              {
+                "title": "NGINX Location Documentation",
+                "link": "https://nginx.org/en/docs/http/ngx_http_core_module.html#location"
+              }
+            ],
+            "enum": [
+              "Prefix",
+              "Strong Prefix",
+              "Exact",
+              "Case-Sensitive Regular Expression",
+              "Case-Insensitive Regular Expression"
+            ],
+            "default": "Prefix",
+            "examples": [
+              "Prefix"
+            ]
+          },
+          "nameExpression": {
+            "title": "URI",
+            "type": "string",
+            "description": "A string or regular expression that determines which location processes a request.",
+            "examples": [
+              "/api/v1/users",
+              "^/web/api/v1/([A-Za-z]+)$"
+            ]
+          },
+          "upstreamName": {
+            "description": "Name of the target upstream. Must match exactly.",
+            "title": "Upstream Name",
+            "type": "string",
+            "examples": [
+              "eu_auth_service"
+            ]
+          },
+          "proxyHeaders": {
+            "title": "Proxy Headers",
+            "items": {
+              "type": "object",
+              "properties": {
+                "headerName": {
+                  "title": "Header Name",
+                  "type": "string",
+                  "examples": [
+                    "header-example"
+                  ]
+                },
+                "headerValue": {
+                  "title": "Header Value",
+                  "type": "string",
+                  "examples": [
+                    "header-value"
+                  ]
+                }
+              },
+              "required": [
+                "headerName",
+                "headerValue"
+              ]
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "nameExpression",
+          "matchType",
+          "upstreamName"
+        ]
+      }
+    },
+    "required": []
+  }

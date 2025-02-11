@@ -1,0 +1,18 @@
+{{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+{{ if not (empty $augmentArgs.applyRateLimiting) }}
+
+{{ $rateLimitMethod := "" }}
+{{ if not (empty $augmentArgs.rateLimitMethod) }}
+{{ 
+        $rateLimitMethods := dict 
+        "Binary Remote Address" "$binary_remote_addr"
+        "Request URI" "$request_uri"
+        "Binary Remote Address & Request URI" "$binary_remote_addr$request_uri"
+}}
+{{ $rateLimitMethod = index $rateLimitMethods $augmentArgs.rateLimitMethod }}
+{{ end }}
+{{ if not (empty $rateLimitMethod) }}
+limit_req_zone {{ $rateLimitMethod }} zone=aug_rate_limit:10m rate={{ $augmentArgs.numAllowedRequestsPerSecond }}r/s;
+{{ end }}
+{{ end }}

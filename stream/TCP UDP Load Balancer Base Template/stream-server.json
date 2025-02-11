@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stream Server Inputs",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "udp": {
+          "title": "UDP protocol",
+          "type": "boolean",
+          "description": "Set this value to be true for UDP traffic.",
+          "examples": [
+            false
+          ]
+        },
+        "port": {
+          "type": "integer",
+          "title": "Stream server port",
+          "description": "Specifies the listen port for the stream server.",
+          "minimum": 1,
+          "maximum": 65535,
+          "examples": [
+            80
+          ]
+        },
+        "proxyPass": {
+          "type": "object",
+          "title": "Proxy Pass",
+          "properties": {
+            "address": {
+              "title": "Proxy pass server address",
+              "type": "string",
+              "description": "Specifies the address where traffic will be forwarded to.",
+              "examples": [
+                "backend1.example.com",
+                "192.0.0.1"
+              ]
+            },
+            "port": {
+              "type": "integer",
+              "title": "Proxy pass port",
+              "description": "Specifies the port for the proxy pass.",
+              "minimum": 1,
+              "maximum": 65535,
+              "examples": [
+                80
+              ]
+            }
+          },
+          "required": ["address"]
+        }
+      },
+      "required": ["port","proxyPass"]
+    }
+  }
+}

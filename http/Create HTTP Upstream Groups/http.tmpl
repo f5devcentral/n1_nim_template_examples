@@ -1,0 +1,35 @@
+  {{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+{{ range $upstream := $augmentArgs.upstreamgroups }}
+    upstream {{ $upstream.name }} {
+      {{ if not (empty $upstream.zone) }}
+        zone {{ $upstream.zone.name }} {{ default "" $upstream.zone.size }};
+      {{ end }}
+
+      {{ range $server := $upstream.servers }}
+          {{ $serverName := $server.host }}
+          {{ if not (empty $server.port) }}
+            {{ $serverName = printf "%s:%v" $server.host $server.port }}
+          {{ end }}
+
+          server {{ $serverName }}
+                 {{ ternary "" "backup" (empty $server.isBackup) }}
+                 {{ ternary "" "down" (empty $server.isDown) }};
+      {{ end }}
+
+      {{ $loadBalancingStrategy := "" }}
+      {{ if not (empty  $upstream.loadBalancingStrategy) }}
+        {{ 
+          $loadBalancingStrategies := dict 
+            "Round Robin" ""
+            "Least Connections" "least_conn"
+            "Random" "random"
+            "IP-Hash Based" "ip_hash"
+        }}
+        {{ $loadBalancingStrategy = index $loadBalancingStrategies $upstream.loadBalancingStrategy }}
+      {{ end }}
+      {{ if not (empty $loadBalancingStrategy) }}
+        {{ $loadBalancingStrategy }};
+      {{ end }}
+    }
+{{ end }}

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HTTP Server Inputs",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "wellKnownEndpoint": {
+          "title": "Well-Known endpoint",
+          "type": "string",
+          "description": "Returns the OpenID Connect configuration metadata of the OpenID Connect provider per the specification (http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest).",
+          "pattern": "^https?://(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@%:_\\+.~#?&\\/=]*)$",
+          "examples": [
+            "http://127.0.0.1:8080/auth/realms/nginx/.well-known/openid-configuration"
+          ]
+        },
+        "authzEndpoint": {
+          "title": "Authorize endpoint",
+          "type": "string",
+          "description": "The endpoint performs authentication of the end-user using request parameters defined by OAuth 2.0 and additional parameters and parameter values defined by OpenID Connect. Ignored if value for Well-Known endpoint is given.",
+          "pattern": "^https?://(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@%:_\\+.~#?&\\/=]*)$",
+          "examples": [
+            "http://127.0.0.1:8080/realms/realm1/protocol/openid-connect/auth"
+          ]
+        },
+        "tokenEndpoint": {
+          "title": "Token endpoint",
+          "type": "string",
+          "description": "To obtain an Access Token, an ID Token, and optionally a Refresh Token, the Client sends a Token Request to the Token Endpoint to obtain a Token Response. Ignored if value for Well-Known endpoint is given.",
+          "pattern": "^https?://(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@%:_\\+.~#?&\\/=]*)$",
+          "examples": [
+            "http://127.0.0.1:8080/realms/realm1/protocol/openid-connect/token"
+          ]
+        },
+        "jwksUri": {
+          "title": "JWKS URI",
+          "type": "string",
+          "description": "The endpoint returns a JWKS containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider. Ignored if value for Well-Known endpoint is given.",
+          "pattern": "^https?://(?:www\\.)?[-a-zA-Z0-9@%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@%:_\\+.~#?&\\/=]*)$",
+          "examples": [
+            "http://127.0.0.1:8080/realms/realm1/protocol/openid-connect/certs"
+          ]
+        },
+        "clientId": {
+          "title": "Client ID",
+          "description": "Unique client identifier from IdP.",
+          "examples": [
+            "realm1-client1"
+          ],
+          "type": "string"
+        },
+        "clientSecret": {
+          "title": "Client secret",
+          "description": "Client secret associated with the client from IdP.",
+          "examples": [
+            "1234567890"
+          ],
+          "type": "string"
+        },
+        "caCertPath": {
+          "title": "CA Certificate file path",
+          "description": "Path to the file with trusted CA certificates in the PEM format used to verify the certificate of IdP. If not provided then connection to IdP is insecure. Please specify CA certificate for production environments.",
+          "examples": [
+            "/etc/nginx/idp_ca_cert.pem"
+          ],
+          "type": "string"
+        },
+        "authzExtraArgs": {
+          "title": "Authorization extra args",
+          "description": "Extra arguments to include in the request to the IdP's authorization endpoint.",
+          "examples": [
+            "kc_idp_hint=another_provider"
+          ],
+          "type": "string"
+        },
+        "scopes": {
+          "title": "Scopes in url encoded format",
+          "description": "Scopes are used to request specific sets of information of the user that will be made available as Claim values in the tokens.",
+          "examples": [
+            "openid+profile+email+offline_access"
+          ],
+          "type": "string"
+        },
+        "logoutRedirect": {
+          "title": "OIDC logout redirect location",
+          "description": "Where to send browser after requesting /logout location. This can be replaced with a custom logout page, or complete URL.",
+          "examples": [
+            "/_logout"
+          ],
+          "type": "string"
+        },
+        "dnsResolver": {
+          "title": "DNS Resolver",
+          "description": "DNS server that is capable of resolving the IdP defined in OIDC tokenEndpoint. The default value is '8.8.8.8', the Public Google DNS. This can be an IPv4 or IPv6 address.",
+          "examples": [
+            "8.8.8.8"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientId",
+        "clientSecret"
+      ]
+    }
+  },
+  "required": []
+}
+

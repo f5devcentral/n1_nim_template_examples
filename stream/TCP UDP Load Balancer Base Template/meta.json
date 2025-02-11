@@ -1,0 +1,1 @@
+{"author":"F5","description":"A Base template that will generate a full working Layer 4 Stream Load Balancer and Proxy configuration","meta_version_num":1,"name":"TCP UDP Load Balancer Base Template","type":"base"}

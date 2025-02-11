@@ -1,0 +1,5 @@
+{{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+{{ if not (empty $augmentArgs.applyRateLimiting) }}
+limit_req zone=aug_rate_limit;
+{{ end }}

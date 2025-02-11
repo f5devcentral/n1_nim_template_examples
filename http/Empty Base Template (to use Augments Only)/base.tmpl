@@ -1,0 +1,56 @@
+{{ $input := .}}
+
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log info;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+{{ $input.ExecTemplateAugments "main"}}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format main '***[$time_local] [$upstream_cache_status] [$request] [$http_x_forwarded_for] [$status] [$request_length] [$request_time] [$body_bytes_sent]***';
+    access_log  /dev/stdout main;
+    sendfile        on;
+    server_tokens off;
+    gzip  on;
+
+
+{{ $input.ExecTemplateAugments "http-upstream" }}
+
+{{ $input.ExecTemplateAugments "http"}}    
+
+server {
+    listen       9090;
+    server_name  my-example-server;
+
+    {{ $input.ExecTemplateAugments "http-server"}}
+
+    }
+
+    include /etc/nginx/conf.d/*.conf;
+}
+
+
+stream {
+        include /etc/nginx/stream.d/*.conf;
+
+        {{ $input.ExecTemplateAugments "stream-upstream"}}
+              
+        {{ $input.ExecTemplateAugments "stream" }}
+
+	server {
+		listen 9091 udp;
+
+        {{$input.ExecTemplateAugments "stream-server" }}      
+
+		proxy_pass 127.0.0.1:80;
+	}
+
+}

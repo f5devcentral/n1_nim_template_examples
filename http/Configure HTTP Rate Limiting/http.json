@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Configuration",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "applyRateLimiting": {
+          "description": "Setting to cause this server to apply rate limiting.",
+          "title": "Apply Rate Limiting",
+          "type": "boolean",
+          "default": false,
+          "examples": [
+            false
+          ]
+        },
+        "rateLimitMethod": {
+          "title": "Rate Limit Method",
+          "description": "Chooses how requests to potentially be rate limited are identified.",
+          "__docs": [
+            {
+              "title": "Rate Limit Method",
+              "link": "https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req_zone"
+            }
+          ],
+          "enum": [
+            "Binary Remote Address",
+            "Request URI",
+            "Binary Remote Address & Request URI"
+          ],
+          "type": "string",
+          "examples": [
+            "Binary Remote Address"
+          ]
+        },
+        "numAllowedRequestsPerSecond": {
+          "description": "Number of requests per second to allow for this server.",
+          "title": "Requests Per Second",
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 1000,
+          "examples": [
+            1,
+            5,
+            10,
+            20,
+            30
+          ]
+        }
+      },
+      "required": [
+        "applyRateLimiting"
+      ]
+    }
+  },
+  "required": []
+}

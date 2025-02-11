@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Main Inputs",  
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "oidc": {
+          "type": "object",
+          "title": "OIDC Setting",
+          "description": "Adds OIDC settings to main, http, http-server and location blocks. Use OIDC to enable single sign-on (SSO) to authenticate to your app.",
+          "__docs": [
+            {
+              "title": "OIDC specification",
+              "link": "https://openid.net/specs/openid-connect-core-1_0.html"
+            }
+          ],
+          "properties": {
+            "enabled": {
+              "title": "OIDC authentication enabled",
+              "type": "boolean",
+              "description": "Set this value to be true, if location(s) can be accessed only after authentication by the OIDC provider configured at the gateway. If no authentication is needed set this value to be false.",
+              "examples": [
+                true
+              ]
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        }       
+      },
+      "required": [
+        "oidc"
+      ]
+    }
+  },
+  "required": []
+}
+

@@ -1,0 +1,1 @@
+{"author":"F5","description":"An Augment template that adds rate limiting to an existing HTTP server in a base template.","meta_version_num":1,"name":"Configure HTTP Rate Limiting","type":"augment"}

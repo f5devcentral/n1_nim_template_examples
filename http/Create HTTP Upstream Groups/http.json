@@ -1,0 +1,135 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "HTTP Upstream Inputs",
+    "type": "object",
+    "properties": {
+        "templateInput": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "properties": {
+                "upstreamgroups": {
+                    "title": "Upstreams",
+                    "type": "array",
+                    "description": "A list of Upstream groups.",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "title": "Upstream Name",
+                                "type": "string",
+                                "description": "Specifies the name for the http upstream.",
+                                "examples": [
+                                    "eu_auth_service"
+                                ]
+                            },
+                            "loadBalancingStrategy": {
+                                "title": "Load balancing strategy",
+                                "description": "Chooses how requests are balanced between servers in the upstream.",
+                                "__docs": [
+                                    {
+                                        "title": "Load Balancing Guide",
+                                        "link": "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/"
+                                    }
+                                ],
+                                "enum": [
+                                    "Round Robin",
+                                    "Least Connections",
+                                    "Random",
+                                    "IP-Hash Based"
+                                ],
+                                "type": "string",
+                                "examples": [
+                                    "Round Robin"
+                                ]
+                            },
+                            "servers": {
+                                "title": "Servers",
+                                "type": "array",
+                                "description": "A list of upstream servers.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "host": {
+                                            "type": "string",
+                                            "title": "Host",
+                                            "examples": [
+                                                "my-server"
+                                            ]
+                                        },
+                                        "port": {
+                                            "type": "integer",
+                                            "title": "Port",
+                                            "minimum": 1,
+                                            "maximum": 65535,
+                                            "examples": [
+                                                80,
+                                                443
+                                            ]
+                                        },
+                                        "isDown": {
+                                            "type": "boolean",
+                                            "title": "Down",
+                                            "description": "Marks the server as permanently unavailable.",
+                                            "default": false,
+                                            "examples": [
+                                                false
+                                            ]
+                                        },
+                                        "isBackup": {
+                                            "type": "boolean",
+                                            "title": "Backup",
+                                            "description": "Marks the server as backup. Only if all primary servers fail are requests routed here.",
+                                            "default": false,
+                                            "examples": [
+                                                false
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "host"
+                                    ]
+                                }
+                            },
+                            "zone": {
+                                "title": "Zone",
+                                "description": "Name of zone in which to store persistent data about upstream servers.",
+                                "type": "object",
+                                "__docs": [
+                                    {
+                                        "title": "NGINX Upstream Module Zone Documentation",
+                                        "link": "https://nginx.org/en/docs/http/ngx_http_upstream_module.html#zone"
+                                    }
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Name",
+                                        "description": "The identifier of the zone.",
+                                        "examples": [
+                                            "my_zone"
+                                        ]
+                                    },
+                                    "size": {
+                                        "type": "string",
+                                        "title": "Size",
+                                        "description": "The size of the zone.",
+                                        "examples": [
+                                            "65k"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "servers"
+                    ]
+                }
+            }
+        }
+    },
+    "required": []
+}

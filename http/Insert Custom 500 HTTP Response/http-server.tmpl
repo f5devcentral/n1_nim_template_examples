@@ -1,0 +1,8 @@
+{{ $augmentArgs := .AugmentData.V1.httpServer.templateInput }}
+
+{{ if not (empty $augmentArgs.useCustom500Response) }}
+error_page 500 502 503 504 /custom_50x.html;
+location = /custom_50x.html {
+        root /usr/share/nginx/html;
+        internal;
+}{{ end }}

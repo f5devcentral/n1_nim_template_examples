@@ -1,0 +1,36 @@
+{{ $augmentArgs := .AugmentData.V1.http.templateInput }}
+
+{{ range $server := $augmentArgs.servers }}
+    server {
+      listen {{ $server.listen.port }}
+        {{ ternary "" "default_server" (empty $server.listen.isDefault) }}
+        {{ ternary "" "ssl" (empty $server.ssl.isEnabled) }};
+
+      {{ if not (empty $server.ssl) }}
+        ssl_certificate {{ $server.ssl.sslCertificate }};
+        ssl_certificate_key {{ $server.ssl.sslCertificateKey }};
+      {{ end }}
+
+      {{ if not (empty $server.name) }}
+        server_name {{ $server.name | join " " }};
+      {{ end }}
+
+  {{ range $serverSnippets := $augmentArgs.serverSnippets }}
+           {{ $serverSnippets.snippetValue }} 
+           {{ "" }} 
+    {{ end }}
+
+        proxy_intercept_errors on;
+      }
+
+    {{/* Create a TLS redirect server if specified */}}
+    {{ if not (empty $server.ssl.redirectFromPort) }}
+      server {
+          listen {{ $server.ssl.redirectFromPort }};
+          {{ if not (empty $server.name) }}
+            server_name {{ $server.name | join " " }};
+          {{ end }}
+          return 301 https://$host$request_uri;
+      }
+    {{ end }}
+{{ end }}

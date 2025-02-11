@@ -1,0 +1,1 @@
+{"author":"F5","description":"An Augment template that creates a TCP or UDP Stream server and Upstream block within the Stream context.","meta_version_num":1,"name":"Create Stream TCP UDP Server Block and Upstream","type":"augment"}

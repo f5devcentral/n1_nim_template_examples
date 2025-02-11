@@ -1,0 +1,1 @@
+{"author":"F5","description":"An empty Base template that allows you to insert Augment templates, each creating its own .conf file under /etc/nginx/conf.d.","meta_version_num":1,"name":"Empty Base Template (to use Augments Only)","type":"base"}

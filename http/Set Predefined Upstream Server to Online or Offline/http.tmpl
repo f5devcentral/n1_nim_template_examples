@@ -1,0 +1,17 @@
+{{$augmentData := .AugmentData.V1}}
+
+{{$httpTemplateInput := $augmentData.http.templateInput}}
+
+upstream my-upstream {
+    zone my-upstream 64k;
+    {{$downserver1 := ""}}
+    {{if $httpTemplateInput.downserver1}}
+        {{$downserver1 = " down"}}
+    {{end}}     
+	server 127.0.0.1:8080{{$downserver1}}; #Server1
+    {{$downserver2 := ""}}
+    {{if $httpTemplateInput.downserver2}}
+        {{$downserver2 = " down"}}
+    {{end}}     
+	server 127.0.0.2:8080{{$downserver2}}; #Server2
+}

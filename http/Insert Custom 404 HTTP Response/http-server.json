@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Configuration",
+  "type": "object",
+  "properties": {
+    "templateInput": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "useCustom404Response": {
+          "description": "Setting to cause this server use a predetermined static 404 html page response.",
+          "title": "Use Custom 404 Response",
+          "type": "boolean",
+          "default": false,
+          "examples": [
+            false
+          ]
+        }
+      },
+      "required": [
+        "useCustom404Response"
+      ]
+    }
+  },
+  "required": []
+}

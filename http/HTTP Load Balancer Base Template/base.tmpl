@@ -1,0 +1,133 @@
+{{ $input := . }}
+{{ $baseData := .Data.V1 }}
+{{ $globalArgs := $baseData.main.templateInput }}
+
+include /etc/nginx/main.d/*.conf;
+#test
+{{/* Augments containing templating for the main context will be injected here */}}
+{{ $input.ExecTemplateAugments "main" }}
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+  log_format controller_recommended_log_format '$remote_addr - "$remote_user" [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$host" sn="$server_name" rt="$request_time" ua="$upstream_addr" us="$upstream_status" ut="$upstream_response_time" ul="$upstream_response_length" cs="$upstream_cache_status"';
+  access_log /var/log/nginx/access.log controller_recommended_log_format;
+  error_log /var/log/nginx/error.log;
+  sendfile on;
+  keepalive_timeout 65;
+  server_tokens off;
+  include /etc/nginx/http.d/*.conf;
+
+
+  {{/* Augments containing additional configuration for the http context will be injected here*/}}
+  {{ $input.ExecTemplateAugments "http" }}
+
+  {{ range $upstream := $baseData.http.upstreams }}
+    {{ $upstreamArgs := $upstream.templateInput }}
+    upstream {{ $upstreamArgs.name }} {
+      {{ if not (empty $upstreamArgs.zone) }}
+        zone {{ $upstreamArgs.zone.name }} {{ default "" $upstreamArgs.zone.size }};
+      {{ end }}
+
+      {{ range $server := $upstreamArgs.servers }}
+          {{ $serverName := $server.host }}
+          {{ if not (empty $server.port) }}
+            {{ $serverName = printf "%s:%v" $server.host $server.port }}
+          {{ end }}
+
+          server {{ $serverName }}
+                 {{ ternary "" "backup" (empty $server.isBackup) }}
+                 {{ ternary "" "down" (empty $server.isDown) }};
+      {{ end }}
+
+      {{ $loadBalancingStrategy := "" }}
+      {{ if not (empty  $upstreamArgs.loadBalancingStrategy) }}
+        {{ 
+          $loadBalancingStrategies := dict 
+            "Round Robin" ""
+            "Least Connections" "least_conn"
+            "Random" "random"
+            "IP-Hash Based" "ip_hash"
+        }}
+        {{ $loadBalancingStrategy = index $loadBalancingStrategies $upstreamArgs.loadBalancingStrategy }}
+      {{ end }}
+      {{ if not (empty $loadBalancingStrategy) }}
+        {{ $loadBalancingStrategy }};
+      {{ end }}
+
+      {{/* Augments containing templating for upstreams will be injected here*/}}
+      {{ $input.ExecTemplateAugments "http-upstream" $upstream }}
+    }
+  {{ end }}
+
+  {{/* Iterate over all servers to create a TLS redirect server if specified */}}
+  {{ range $server := $baseData.http.servers }}
+    {{ $serverArgs := $server.templateInput }}
+    {{ if not (empty $serverArgs.ssl.redirectFromPort) }}
+      server {
+          listen {{ $serverArgs.ssl.redirectFromPort }};
+          {{ if not (empty $serverArgs.name) }}
+            server_name {{ $serverArgs.name | join " " }};
+          {{ end }}
+          return 301 https://$host$request_uri;
+      }
+    {{ end }}
+  {{ end }}
+
+  {{/* Create all primary server blocks */}}
+  {{ range $server := $baseData.http.servers }}
+    {{ $serverArgs := $server.templateInput }}
+    server {
+      listen {{ $serverArgs.listen.port }}
+        {{ ternary "" "default_server" (empty $serverArgs.listen.isDefault) }}
+        {{ ternary "" "ssl" (empty $serverArgs.ssl.isEnabled) }};
+
+      {{ if not (empty $serverArgs.ssl) }}
+        ssl_certificate {{ $serverArgs.ssl.sslCertificate }};
+        ssl_certificate_key {{ $serverArgs.ssl.sslCertificateKey }};
+      {{ end }}
+
+      {{ if not (empty $serverArgs.name) }}
+        server_name {{ $serverArgs.name | join " " }};
+      {{ end }}
+
+      {{/* Needed for the 404 and 500 handler augments */}}
+      proxy_intercept_errors on;
+
+      {{/* Augments containing templating for the http server context will be injected here*/}}
+      {{ $input.ExecTemplateAugments "http-server" $server }}
+
+      {{
+        $matchTypes := dict
+          "Prefix" ""
+          "Strong Prefix" "^~"
+          "Exact" "="
+          "Case-Sensitive Regular Expression" "~"
+          "Case-Insensitive Regular Expression" "~*"
+      }}
+
+      {{ range $location := $server.locations }}
+        {{ $locationArgs := $location.templateInput }}
+
+        {{ $matchType := "" }}
+        {{ if not (empty $locationArgs.matchType) }}
+          {{ $matchType = index $matchTypes $locationArgs.matchType }}
+        {{ end }}
+
+        location {{ $matchType }} {{ $locationArgs.nameExpression }} {
+          {{ range $proxyHeaders := $locationArgs.proxyHeaders }}
+            proxy_set_header "{{ $proxyHeaders.headerName }}" "{{ $proxyHeaders.headerValue }}";
+          {{ end }}
+
+          proxy_pass http://{{ $locationArgs.upstreamName }};
+          {{/* Augments containing templating for locations will be injected here*/}}
+          {{ $input.ExecTemplateAugments "location" $server $location }}
+        }
+      {{ end }}
+    }
+  {{ end }}
+}

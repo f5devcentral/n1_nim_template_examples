@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HTTP Server Inputs",
+  "type": "object",
+    "properties": {
+      "templateInput": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "servers": {
+            "title": "Servers",
+            "type": "array",
+            "description": "A list of server blocks.",
+            "items": {
+              "type": "object",
+      "properties": {
+        "listen": {
+          "title": "Listen",
+          "type": "object",
+          "description": "Settings related to how the NGINX server will accept connections.",
+          "properties": {
+            "port": {
+              "default": 443,
+              "description": "The TCP port on which the server will listen. Valid values are 1-65535.",
+              "maximum": 65535,
+              "minimum": 1,
+              "title": "Port",
+              "type": "number",
+              "examples": [
+                443
+              ]
+            },
+            "isDefault": {
+              "description": "Setting to cause this server to be used as default if another server cannot be matched.",
+              "title": "Default Server",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                false
+              ]
+            }
+          },
+          "required": [
+            "port"
+          ]
+        },
+        "name": {
+          "__docs": [
+            {
+              "link": "https://nginx.org/en/docs/http/server_names.html",
+              "title": "A detailed guide to server names"
+            }
+          ],
+          "items": {
+            "description": "Can be an exact match, wildcard match, or regular expression. Order matters in matching precedence.",
+            "title": "Server name",
+            "type": "string"
+          },
+          "title": "Server name",
+          "type": "array"
+        },
+          "serverSnippets": {
+            "title": "NGINX Server Configuration Snippet",
+            "type": "array",
+            "description": "NGINX directive configuration snippet for the Server context. For advanced NGINX users, so proceed with caution.",
+            "items": {
+              "type": "object",
+              "properties": {
+                   "snippetValue": {
+                        "title": "NGINX Server Configuration Snippet",
+                        "type": "string",
+                        "examples": [
+                          "keepalive_timeout 75s;"
+                        ]
+                      }
+              }
+            }
+          },
+        "ssl": {
+          "title": "TLS Settings",
+          "type": "object",
+          "description": "Settings related to how the NGINX server enforces TLS.",
+          "properties": {
+            "isEnabled": {
+              "description": "Is the server using TLS? Setting this will require the specification of SSL certificate information.",
+              "title": "Enable TLS",
+              "type": "boolean",
+              "default": false,
+              "examples": [
+                true
+              ]
+            },
+            "sslCertificate": {
+              "description": "Path on the target instance of the TLS certificate.",
+              "title": "TLS Certificate Path",
+              "type": "string",
+              "examples": [
+                "/etc/nginx/certs/www.example.com.crt"
+              ]
+            },
+            "sslCertificateKey": {
+              "description": "Path on the target instance of the TLS keyfile.",
+              "title": "TLS Keyfile Path",
+              "type": "string",
+              "examples": [
+                "/etc/nginx/certs/www.example.com.key"
+              ]
+            },
+            "redirectFromPort": {
+              "default": 80,
+              "description": "If specified, non-TLS requests to this port will be redirected to the TLS port.",
+              "maximum": 65535,
+              "minimum": 1,
+              "title": "Redirect Port",
+              "type": "number",
+              "examples": [
+                80
+              ]
+            }
+          },
+          "required": [
+            "isEnabled",
+            "sslCertificate",
+            "sslCertificateKey"
+          ]
+        }
+      }
+      },
+      "required": [
+        "listen"
+      ]
+    }
+          }
+        }
+  },
+  "required": []
+}
