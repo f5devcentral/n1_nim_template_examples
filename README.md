@@ -10,4 +10,4 @@
 
 > tar -czvf http_templates.tar.gz *
 
-3. Import Templates into NGINX Instance Manager
+3. Import Templates
